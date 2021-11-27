@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jogando</title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+
+<p>Seu tabuleiro</p>
+<div id='human'>
+    <% include battleField %>
+</div>
+
+<p>Tabuleiro da máquina</p>
+<div id='machine'>
+    <% include battleField %>
+</div>
+
+<div id = 'points'>
+    <p id = 'humanPoints'>0</p>
+    <p id = 'botPoints'>0</p>
+</div>
+<% include ../public/javascripts/play.ejs %>
+</body>
+</html>

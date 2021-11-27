@@ -1,0 +1,69 @@
+<script>
+	const plays = JSON.parse('<%- plays; %>');
+	const botBattleField = JSON.parse('<%- botBattleField; %>');
+	const humanBattleField = JSON.parse('<%- botBattleField; %>');
+
+	$(document).ready(() => {
+		const squareDivs = $('.square');
+		for (const square of squareDivs) {
+			addEvents(square);
+		}
+
+	});
+
+	function addEvents(element) {
+		$(element).bind('click', shotOnBattleField);
+		$(element).bind('mouseenter', drawShot);
+		$(element).bind('mouseleave', removeShot);
+	}
+
+	function drawShot(event) {
+		const element = event.target;
+		if (element.className.includes('shooted') && element.innerHTML !== '') {
+			return;
+		}
+		$(element).addClass('shoot');
+	}
+
+	function removeShot(event) {
+		const element = event.target;
+		if (element.className.includes('shooted') && element.innerHTML !== '') {
+			return;
+		}
+		$(element).removeClass('shoot');
+
+	}
+
+	function shotOnBattleField(event) {
+		const element = event.target;
+		const line = $(element).parent().index();
+		const column = $(element).index();
+		$(element).addClass('shooted');
+
+		if (botBattleField[line][column] !== '*') {
+			const player = $('#humanPoints');
+			player.html(Number(player.html()) + 1);
+			$(element).addClass('shootedRight');
+		}
+
+		botPlay();
+	}
+
+	function botPlay() {
+		const { shotLine, shotColumn } = plays[0];
+		const battleField = $('#machine');
+		const line = battleField.children()[shotLine];
+		const column = $(line).children()[shotColumn];
+		console.log(column);
+		$(column).addClass('shooted');
+
+		if (humanBattleField[shotLine][shotColumn] !== '*') {
+			const player = $('#botPoints');
+			player.html(Number(player.html()) + 1);
+			$(column).addClass('shootedRight');
+		}
+
+		delete plays.shift();
+	}
+
+</script>

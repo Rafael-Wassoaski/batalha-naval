@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Novo jogo</title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+<p id="shipIndex"><%= shipsName[ship] %></p>
+
+<%include battleField %>
+
+<p id='orientation'><%= orientation %></p>
+<button onclick="changeOrientatios()">Girar</button>
+<button id="startGame" onclick="startGame(event)" disabled="true">Iniciar jogo</button>
+
+
+<% include ../public/javascripts/squares.ejs %>
+</body>
+</html>

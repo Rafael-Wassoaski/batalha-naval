@@ -1,0 +1,219 @@
+<script>
+
+	$(document).ready(() => {
+		const squareDivs = $('.square');
+		for (const square of squareDivs) {
+			addEvents(square);
+		}
+
+	});
+	let orientation = '<%= orientation; %>';
+	let ship = 0;
+	let shouldPostionate = true;
+	const shipsName = '<%= shipsName; %>'.split(',');
+	const shipsNumber = shipsName.length
+	const ships = {
+		boats: null,
+		destroyers: null,
+		submarines: null,
+		aircraftcarrier: null,
+	};
+
+	function addEvents(element) {
+		$(element).bind('click', setShips);
+		$(element).bind('mouseenter', drawShips);
+		$(element).bind('mouseleave', removeShips);
+	}
+
+	function drawShips(event, className, shouldRemoveListeners) {
+		if (ship === shipsNumber) {
+			return;
+		}
+		let element = event.target;
+		className = className ? className : 'preenchido';
+
+		if (orientation === 'vertical') {
+			drawVertically(element, className, shouldRemoveListeners);
+			return;
+		}
+
+		drawHorizontally(element, className, shouldRemoveListeners);
+	}
+
+	function isHorizontallyValidPostion(element, size) {
+		if ($(element).index() + size >= 10) {
+			return false;
+		}
+		let nextElement = $(element).next();
+		for (let index = 0; index < size; index++) {
+			if (!/^\s*$/.test(nextElement.text())) {
+				return false;
+			}
+			nextElement = $(nextElement).next();
+		}
+		return true;
+	}
+
+	function isVerticallyValidPostion(element, size) {
+		if ($(element).parent().index() + size > 5) {
+			return false;
+		}
+		let nextElement = $(element).parent().next();
+		for (let index = 0; index < size; index++) {
+
+			let position = $(nextElement).children()[$(element).index()];
+
+			if (!/^\s*$/.test($(position).text())) {
+				return false;
+			}
+			nextElement = $(nextElement).next();
+		}
+		return true;
+	}
+
+	function drawHorizontally(element, className, shouldRemoveListeners) {
+		let nextElement = element;
+		for (let shipSize = 0; shipSize <= ship; shipSize++) {
+			if (nextElement) {
+				if (String(nextElement.className).includes('posicionado')) {
+					continue;
+				}
+
+				element.innerHTML = ship;
+				$(nextElement).addClass(className);
+
+				if (shouldRemoveListeners) {
+					removeListeners(nextElement);
+				}
+				nextElement = $(nextElement).next();
+			}
+		}
+	}
+
+	function drawVertically(element, className, shouldRemoveListeners) {
+		let nextElement = element;
+		for (let shipSize = 0; shipSize <= ship; shipSize++) {
+			if (nextElement) {
+				if (String(nextElement.className).includes('posicionado')) {
+					continue;
+				}
+
+				element.innerHTML = ship;
+				$(nextElement).addClass(className);
+
+				if (shouldRemoveListeners) {
+					removeListeners(nextElement);
+				}
+				nextElement = $(nextElement).parent().next().children()[$(element).index()];
+			}
+		}
+	}
+
+	function removeListeners(element) {
+		$(element).on('mouseenter', () => {
+		});
+		$(element).on('mouseleave', () => {
+		});
+		$(element).on('click', () => {
+		});
+	}
+
+	function removeHorizontally(element) {
+		for (let shipSize = 0; shipSize <= ship; shipSize++) {
+			if (!element) {
+				continue;
+			}
+			if (element.className.includes('posicionado') && element.innerHTML !== '') {
+				continue;
+			}
+			element.innerHTML = '';
+			$(element).removeClass('preenchido');
+			element = element.nextElementSibling;
+		}
+	}
+
+	function removeVertically(element) {
+		for (let shipSize = 0; shipSize <= ship; shipSize++) {
+			if (element) {
+				if (String(element.className).includes('posicionado')) {
+					continue;
+				}
+
+				element.innerHTML = '';
+				element.className = 'square';
+				element = $(element).parent().next().children()[$(element).index()];
+			}
+		}
+	}
+
+	function removeShips(event) {
+		let element = event.target;
+
+		if (orientation === 'vertical') {
+			removeVertically(element);
+			return;
+		}
+
+		removeHorizontally(element);
+	}
+
+	function validatePosition(element) {
+		if (orientation === 'horizontal') {
+			return isHorizontallyValidPostion(element, ship);
+		}
+		return isVerticallyValidPostion(element, ship);
+	}
+
+	function setShips(event) {
+		if (shouldPostionate) {
+			const a = validatePosition(event.target);
+			if (!a) {
+				alert('A posição para este navio é inválida, por favor tente outra posição');
+				return;
+			}
+
+			drawShips(event, 'posicionado', true);
+			const shipType = shipsName[ship].toLowerCase().replaceAll(' ', '');
+			ships[shipType] = {
+				line: $(event.target).parent().index() - 1,
+				column: $(event.target).index(),
+				orientation: orientation
+			}
+			ship += 1;
+			const shipIndex = document.getElementById('shipIndex');
+			shipIndex.innerHTML = shipsName[ship];
+			if (ship === shipsNumber) {
+				shouldPostionate = false;
+				$('#startGame').prop('disabled', shouldPostionate);
+				$('#shipIndex').hide();
+			}
+		}
+	}
+
+	function changeOrientatios() {
+		const textOrientation = document.getElementById('orientation');
+		if (orientation === 'vertical') {
+			orientation = textOrientation.innerHTML = 'horizontal';
+			return;
+		}
+
+		orientation = textOrientation.innerHTML = 'vertical';
+	}
+
+	function startGame() {
+		const request = new Request('/game/start-game', {
+			method: 'POST',
+			body: JSON.stringify(ships),
+			headers: { 'Content-Type': 'application/json' }
+		})
+
+		fetch(request).then(result => {
+			console.log(result);
+			if(result.status === 200){
+				window.location = result.url;
+            }
+        });
+
+	}
+
+</script>

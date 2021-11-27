@@ -6,3 +6,35 @@ body {
 a {
   color: #00B7FF;
 }
+
+.square{
+  background-color: #4e53ff;
+  border-style: dashed;
+  border-color: black;
+  width: 60px;
+  height: 60px;
+}
+
+.preenchido{
+  background-color: #ff0000;
+
+}
+.shoot{
+  background-color: black;
+}
+
+.shooted{
+  background-color: red;
+}
+.shootedRight{
+  background-color: #73ff00;
+}
+
+.posicionado{
+  background-color: #73ff00;
+}
+
+.line{
+  display: flex;
+}
+

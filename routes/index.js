@@ -1,28 +1,34 @@
 let express = require('express');
 let router = express.Router();
 const db = require('../db');
-const BattleFieldController = require('../controllers/BattleFieldController');
-const battleFieldController = new BattleFieldController();
+const GameController = require('../controllers/GameController');
+const gameController = new GameController();
 
 /* GET home page. */
 router.get('/', async function (req, res, next) {
-	const battleFields = db.Mongoose.model('battleFields', db.BattleFiedlSchema, 'battleFields');
+	let ship = 0;
+	const shipsName = [
+		'Boats',
+		'Destroyers',
+		'Submarines',
+		'Aircraft Carrier']
+	;
+	let orientation = 'horizontal';//false horizontal vertical vertical
 	
-	const data = await battleFields.find({}).lean().exec();
-	res.json(data);
+	res.render('positionate', { ship, shipsName, orientation });
+});
+
+router.get('/:gameId', async (req, res) => {
+	gameController.read(req, res);
 });
 
 router.post('/start-game', async (req, res) => {
-	battleFieldController.create(req, res);
+	gameController.create(req, res);
 });
 
-router.post('/play', async function (req, res, next) {
-	const battleFields = db.Mongoose.model('battleFields', db.BattleFiedlSchema, 'battleFields');
-	const { line, column, gameId } = req.body;
-	
-	
-	const data = await battleFields.find({}).lean().exec();
-	res.json(data);
-});
+router.get('/play/:gameId',async(req, res)=>{
+	gameController.play(req, res);
+} )
+
 
 module.exports = router;
